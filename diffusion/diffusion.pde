@@ -1,5 +1,5 @@
 import java.util.Arrays;
-float dt = 1, D = 3, V = 1, dl = 10;
+float dt = 1, D = 2, V = 1, dl = 10;
 int tick = 0;
 float[][] q, c;
 int dx = 0, dy = 0;
@@ -11,7 +11,7 @@ int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 PFont font ;
 
 void setup() {
-  size(600, 420);
+  size(600, 480);
   frameRate(10);
  //smooth();
   q = new float[max_x][max_y];
@@ -34,12 +34,12 @@ void draw() {
     stroke(0);
     fill(0,0,255);
 
- for(int i = 1; i < max_x-1; i++){
-    for(int j = 1; j < max_y-1; j++){
+ for(int i = 0; i < max_x; i++){
+    for(int j = 0; j < max_y; j++){
        
        colorMode(HSB);
        fill(180-map(c[i][j],0,A,0,180),255,255);
-       stroke(180-map(c[i][j],0,A,0,180),200,255);
+       stroke(180-map(c[i][j],0,A,0,180),255,255);
        rect(i*dx,j*dy,dx,dy);
        
       
@@ -54,12 +54,12 @@ void draw() {
   
   
 
- /* colorMode(RGB);
-  rect(10,10,10,180);
+/*  colorMode(RGB);
+  rect(10,height-40,180,10);
   for(int i = 0; i < 180; i++){
     colorMode(HSB);
     stroke(i,255,200);
-    line(10,10+i,20,10+i);
+    line(10+i,height-40,10+i,height-30);
   }
   colorMode(RGB);
   textFont(font, 16);
@@ -67,38 +67,48 @@ void draw() {
   fill(0);
   text(A,20,20);
   text(0,20,190);*/
-  /*
-  if(((x1 != 0)||(y1 != 0))&&((y1 != y2)||(x1 != x2))){
+  
+  if(mousePressed){
+  if(((x1 != 0)||(y1 != 0))&&((x2 != 0)||(y2 != 0))&&((y1 != y2)||(x1 != x2))){
       int max_x = max(x1,x2);
       int min_x = min(x1,x2);
       int max_y = max(y1,y2);
       int min_y = min(y1,y2);
+      colorMode(RGB);
       fill(255,0,0,power);
       rect(min_x,min_y,max_x-min_x,max_y-min_y);
     }
-  */
+  }
   
       
    /*   fill(255,0,0,power);
       rect(mouseX,mouseY,dx,dy);
   */
-    stroke(255);
+  stroke(255);
   fill(0);
   textFont(font, 20);
   text("timer: "+tick,10,height-10);
   text("power: "+power,150,height-10);
-    text("max val: "+A,300,height-10);
-
+  text("max val: "+A,300,height-10);
 }
 
 
 
 void recalc(){
   A = 0;
-  
-  for(int i = 1; i < max_x-1; i++){
-    for(int j = 1; j < max_y-1; j++){
-      c[i][j] += (D*(c[i-1][j]+c[i+1][j]+c[i][j-1]+c[i][j+1]-4*c[i][j])*dt/dl + V*(c[i][j] - c[i+1][j])*dt/dl + q[i][j]*dt);
+ 
+   
+  for(int i = 0; i < max_x; i++){
+    for(int j = 0; j < max_y; j++){
+      float l = 0, r = 0, top = 0, bot = 0, it = 0;
+      if(i > 0) l = c[i-1][j];
+      if(i<max_x-1) r = c[i+1][j];
+      if(j>0) bot = c[i][j-1];
+      if(j<max_y-1) top = c[i][j+1];
+       it = c[i][j];
+       c[i][j] += D*(l+r+bot+top-4*it)*dt/dl + V*(it - r)*dt/dl + it*dt;
+       //if(it > 1000000) it = 1000000;
+       //c[i][j] = it;
       if (A < c[i][j]) A = c[i][j];
       
     }
