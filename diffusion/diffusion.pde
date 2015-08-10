@@ -127,7 +127,7 @@ void mouseReleased(){
   int max_y = max(y1,y2);
   int min_y = min(y1,y2);
   
-    for( int i = round(min_x/dx); i < round(max_x/dx); i++) for ( int j = round(min_y/dy); j < round(max_y/dy); j++) q[i][j] = 100;
+    for( int i = round(min_x/dx); i < round(max_x/dx); i++) for ( int j = round(min_y/dy); j < round(max_y/dy); j++) q[i][j] = power;
   
   
 x1 = 0; x2 = 0; y1 = 0; y2 = 0;
