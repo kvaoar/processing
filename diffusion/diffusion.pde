@@ -1,5 +1,5 @@
 import java.util.Arrays;
-float dt = 0.1, D = 0.4, V = 0.2, dl = 0.1;
+float dt = 0.1, D = 0.45, V = 0.05, dl = 0.1;
 int tick = 0;
 float[][] q, c;
 int dx = 0, dy = 0;
@@ -122,17 +122,17 @@ void recalc(){
       //if(it < 0 ) sign = -1;
        
        it += D*(l+r+bot+top-4*it)*dt/dl + (sign)*V*(it - r)*dt/dl + qs*dt;
-       if(it >+100) it = +100;
-       if(it <-100) it = -100;
+       if(it >+1000) it = - 0.000001*it*it; //+100;
+       if(it <-1000) it =+0.000001*it*it; //-100;
        c[i][j] = it;
       if (maxA < it) maxA = it;
       if (minA > it) minA = it;
     }
   }
+ 
   
-  for(int j = max_y-1; j >= 0; j--){
-  for(int i = max_x-1; i >= 0; i--){
-    
+  for(int i = 0; i <= max_x-1; i++){
+  for(int j = max_y-1; j >= 0; j--){  
       float l = 0, r = 0, top = 0, bot = 0, it = 0, qs = 0;
       if(i > 0) l = c[i-1][j];
       if(i<max_x-1) r = c[i+1][j];
@@ -144,8 +144,8 @@ void recalc(){
      // if(it < 0 ) sign = -1;
        
        it += D*(l+r+bot+top-4*it)*dt/dl + (sign)*V*(it - r)*dt/dl + qs*dt;
-       if(it>100) it = +100;
-       if(it <-100 ) it =-100;
+       if(it >+1000) it = - 0.000001*it*it; //+100;
+       if(it <-1000) it =+0.000001*it*it; //-100;
        c[i][j] = it;
        
        if(qs != 0){
@@ -161,8 +161,8 @@ void recalc(){
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  if(e < 0) {if (power < 250) power+=10;  else power = 0;}
-  if(e > 0) {if (power > -250) power-=10;  else power = 0;}
+  if(e < 0) {if (power < 250) power+=10;  else power = -250;}
+  if(e > 0) {if (power > -250) power-=10;  else power = +250;}
 }
 
 
