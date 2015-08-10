@@ -1,5 +1,5 @@
 import java.util.Arrays;
-float dt = 1, D = 2, V = 1, dl = 10;
+float dt = 1, D = 3, V = 1, dl = 10;
 int tick = 0;
 float[][] q, c;
 int dx = 0, dy = 0;
@@ -21,9 +21,9 @@ void setup() {
   println(dx+" "+dy);
   font = createFont("Consolas", 48);
   
-  for( int i = round(0.1*max_x); i < round(0.15*max_x); i++) for ( int j = round(0.2*max_y); j < round(0.25*max_y); j++) q[i][j] = 10;
+ // for( int i = round(0.1*max_x); i < round(0.15*max_x); i++) for ( int j = round(0.2*max_y); j < round(0.3*max_y); j++) q[i][j] = 10;
 //  for( int i = round(0.15*max_x); i < round(0.2*max_x); i++) for ( int j = round(0.4*max_y); j < round(0.6*max_y); j++) q[i][j] = 100;
-  for( int i = round(0.1*max_x); i < round(0.15*max_x); i++) for ( int j = round(0.8*max_y); j < round(0.85*max_y); j++) q[i][j] = 25;
+//  for( int i = round(0.1*max_x); i < round(0.15*max_x); i++) for ( int j = round(0.8*max_y); j < round(0.9*max_y); j++) q[i][j] = 25;
 }
 
 void draw() {
@@ -95,24 +95,28 @@ void draw() {
 
 
 void recalc(){
-  A = 0;
+  A = 1;
  
    
   for(int i = 0; i < max_x; i++){
     for(int j = 0; j < max_y; j++){
-      float l = 0, r = 0, top = 0, bot = 0, it = 0;
+      float l = 0, r = 0, top = 0, bot = 0, it = 0, qs = 0;
       if(i > 0) l = c[i-1][j];
       if(i<max_x-1) r = c[i+1][j];
       if(j>0) bot = c[i][j-1];
       if(j<max_y-1) top = c[i][j+1];
        it = c[i][j];
-       c[i][j] += D*(l+r+bot+top-4*it)*dt/dl + V*(it - r)*dt/dl + it*dt;
-       //if(it > 1000000) it = 1000000;
-       //c[i][j] = it;
-      if (A < c[i][j]) A = c[i][j];
+       qs = q[i][j];
+       it += D*(l+r+bot+top-4*it)*dt/dl + V*(it - r)*dt/dl + qs*dt;
+       if(it>1000) it -= (it-1000);
+       if(it <0 ) it = 0;
+       c[i][j] = it;
+      if (A < it) A = it;
       
     }
   }
+  
+
   
 }
 
