@@ -49,6 +49,12 @@ void draw() {
        point(i*dx+dx/2, j*dy+dy/2);
        }
        
+       if(q[i][j] <0){
+       colorMode(RGB);
+       stroke(0,0,0,255);
+       point(i*dx+dx/2, j*dy+dy/2);
+       }
+       
     }
   }
   
@@ -75,7 +81,7 @@ void draw() {
       int max_y = max(y1,y2);
       int min_y = min(y1,y2);
       colorMode(RGB);
-      fill(255,0,0,power);
+      fill(255,0,0,abs(power));
       rect(min_x,min_y,max_x-min_x,max_y-min_y);
     }
   }
@@ -123,7 +129,7 @@ void recalc(){
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
   if(e <0) if (power < 250) {power+=10; }
-  if(e >0) if (power > 0)  { power-=10;}
+  if(e >0) if (power > -250)  { power-=10;}
 }
 
 
