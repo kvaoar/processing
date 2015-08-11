@@ -1,5 +1,5 @@
 import java.util.Arrays;
-float dt = 0.1, D = 0.45, V = 0.05, dl = 0.1;
+float dt = 0.1, D = 0.25, V = 0.05, dl = 0.1;
 int tick = 0;
 float[][] q, c;
 int dx = 0, dy = 0;
@@ -12,7 +12,7 @@ PFont font ;
 PImage img ;
 void setup() {
   size(640, 480);
-  frameRate(60);
+  frameRate(30);
  smooth();
   q = new float[max_x][max_y];
   c = new float[max_x][max_y];
@@ -49,6 +49,11 @@ colorMode(HSB);
     for(int j = 0; j < max_y; j++){
       color cc = color(180-map(c[i][j],minA,maxA,0,180),255,255);
       color bb = color(180-map(c[i][j],minA,maxA,0,180),0,0);
+      //if((x == 0)&&(y == 0)&&(q[i][j] != 0)) img.pixels[(j*dy+y)*width+(i*dx+x)] = bb;
+       /* img.pixels[(j*dy)*width+(i*dx)] = cc;
+        img.pixels[(j*dy+1)*width+(i*dx)] = cc;
+        img.pixels[(j*dy)*width+(i*dx+1)] = cc;
+        img.pixels[(j*dy+1)*width+(i*dx+1)] = cc;*/
       for(int x = 0; x < dx; x++){
         for(int y = 0; y < dy; y++){
         if((x == 0)&&(y == 0)&&(q[i][j] != 0)) img.pixels[(j*dy+y)*width+(i*dx+x)] = bb;
@@ -106,8 +111,8 @@ t1 = millis() - t1 - t2;
 
 
 void recalc(){
-  minA = -1;
-  maxA = 1;
+  minA = -10;
+  maxA = 10;
    
   for(int i = 0; i < max_x; i++){
     for(int j = 0; j < max_y; j++){
@@ -118,15 +123,14 @@ void recalc(){
       if(j<max_y-1) top = c[i][j+1];
        it = c[i][j];
        qs = q[i][j];
-       int sign = 1;
-      //if(it < 0 ) sign = -1;
+
        
-       it += D*(l+r+bot+top-4*it)*dt/dl + (sign)*V*(it - r)*dt/dl + qs*dt;
+       it += D*(l+r+bot+top-4*it)*dt/dl + V*(it - r)*dt/dl + qs*dt;
        if(it >+1000) it = - 0.000001*it*it; //+100;
        if(it <-1000) it =+0.000001*it*it; //-100;
        c[i][j] = it;
-      if (maxA < it) maxA = it;
-      if (minA > it) minA = it;
+      //if (maxA < it) maxA = 0.9*maxA + 0.1*it;
+      //if (minA > it) minA = 0.9*maxA + 0.1*it;
     }
   }
  
@@ -140,29 +144,29 @@ void recalc(){
       if(j<max_y-1) top = c[i][j+1];
        it = c[i][j];
        qs = q[i][j];
-       int sign = 1;
-     // if(it < 0 ) sign = -1;
-       
-       it += D*(l+r+bot+top-4*it)*dt/dl + (sign)*V*(it - r)*dt/dl + qs*dt;
+
+       it += D*(l+r+bot+top-4*it)*dt/dl + V*(it - r)*dt/dl + qs*dt;
        if(it >+1000) it = - 0.000001*it*it; //+100;
        if(it <-1000) it =+0.000001*it*it; //-100;
        c[i][j] = it;
-       
-       if(qs != 0){
+
       if (maxA < it) maxA = it;
       if (minA > it) minA = it;
-       }
+
     }
   }
   
+  maxA = max(abs(maxA),abs(minA));
+  minA = -maxA;
 }
 
 
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  if(e < 0) {if (power < 250) power+=10;  else power = -250;}
-  if(e > 0) {if (power > -250) power-=10;  else power = +250;}
+  int ds = (abs(power)<10)?1:10;
+  if(e < 0) {if (power < 250) power+= ds ;  else power = -250;}
+  if(e > 0) {if (power > -250) power-= ds;  else power = +250;}
 }
 
 
