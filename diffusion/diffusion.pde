@@ -23,7 +23,7 @@ void setup() {
   dx = width/max_x;
   dy = height/max_y;
   println(dx+" "+dy);
-  font = createFont("Consolas", 48);
+  font = createFont("Consolas", 14);
   img = createImage(max_x*dx, max_y*dy, HSB);
 //  square = createShape(RECT, 0, 0, dx, dy);
   for( int i = round(0.1*max_x); i < round(0.9*max_x); i++) for ( int j = round(0.1*max_y); j < round(0.9*max_y); j++) q[i][j] = 4;
@@ -49,7 +49,7 @@ colorMode(HSB);
     for(int j = 0; j < max_y; j++){
       color cc = color(180-map(c[i][j],minA,maxA,0,180),255,255);
       color bb = color(180-map(c[i][j],minA,maxA,0,180),0,0);
-      if((img.pixels[(j*dy+1)*width+(i*dx+1)] != cc)){
+     // if((img.pixels[(j*dy+1)*width+(i*dx+1)] != cc)){
       for(int x = 0; x < dx; x++){
         for(int y = 0; y < dy; y++){
           img.pixels[(j*dy+y)*width+(i*dx+x)] = cc;
@@ -57,7 +57,7 @@ colorMode(HSB);
 
       }
     }
-  }
+ // }
   }
  }
 img.updatePixels();
@@ -95,17 +95,21 @@ colorMode(RGB);
    /*   fill(255,0,0,power);
       rect(mouseX,mouseY,dx,dy);
   */
-  stroke(255);
+    t1 = millis() - t1 - t2;
   fill(0);
-  textFont(font, 14);
+  textFont(font);
+  text( "([) v="+nf(V,1,3)+" (]) o d="+nf(D,1,3)+" p",10,20);
+  text("Sources  (q):"+onoff(sources),480,20);
+  text("Flow     (s):"+onoff(speed),480,40);
+  text("Pause(space):"+onoff(pause),480,60);
+  
   text("timer: "+tick,10,height-10);
   text("power: "+power,150,height-10);
   text("max: "+round(maxA),300,height-10);
   text("min: "+round(minA),450,height-10);
-  t1 = millis() - t1 - t2;
+
   text("paint:"+t1+"ms calc:"+t2+ "ms ",10,height-30);
-  text( "([) V="+nf(V,1,3)+" (]) (o) D="+nf(D,1,3)+" (p)",10,10);
-   text("srcs(q):"+onoff(sources)+" speed(s):"+onoff(speed) + " pause(space):"+onoff(pause),300,10);
+
 }
 
 String onoff( boolean b){return b?"on":"off";}
@@ -113,12 +117,18 @@ String onoff( boolean b){return b?"on":"off";}
 void recalc(){
   minA = -10;
   maxA = 10;
-   
-  for(int i = 0; i < max_x; i++)for(int j = 0; j < max_y; j++) d_recalc(i,j);
-//  for(int i = max_x-1; i >=0 ; i--)for(int j = max_y-1; j >=0; j--)d_recalc(i,j);
-  for(int i = 0; i <= max_x-1; i++)for(int j = max_y-1; j >= 0; j--)d_recalc(i,j);
-//  for(int i = max_x-1; i >= 0; i--)for(int j = 0; j <= max_y-1; j++)d_recalc(i,j);
 
+  for(int i = 0; i < max_x; i++)     for(int j = 0; j < max_y; j++) d_recalc(i,j); //left top
+    for(int i = max_x-1; i >=0; i--)   for(int j = 0; j < max_y; j++) d_recalc(i,j);   //right top
+  for(int i = max_x-1; i >=0; i--)   for(int j = max_y-1; j >=0; j--)d_recalc(i,j);  //right bot
+  for(int i = 0; i < max_x; i++)     for(int j = max_y-1; j >=0; j--) d_recalc(i,j); //left bot
+
+ /* for(int i = 0; i < max_x; i++)     for(int j = 0; j < max_y; j++) d_recalc(i,j); //left top
+  for(int i = 0; i < max_x; i++)     for(int j = max_y-1; j >=0; j--) d_recalc(i,j); //left bot
+  for(int i = max_x-1; i >=0; i--)   for(int j = 0; j < max_y; j++) d_recalc(i,j);   //right top
+  for(int i = max_x-1; i >=0; i--)   for(int j = max_y-1; j >=0; j--)d_recalc(i,j);  //right bot
+*/
+  
   maxA = max(abs(maxA),abs(minA));
   minA = -maxA;
 }
@@ -137,8 +147,8 @@ float l = 0, r = 0, top = 0, bot = 0, it = 0, qs = 0, v = 0;
        if(speed) v = V;
        
        it += D*(l+r+bot+top-4*it)*dt/dl + v*(it - r)*dt/dl + qs*dt;
-       if(it >+1000) it = - 0.000001*it*it; //+100;
-       if(it <-1000) it =+0.000001*it*it; //-100;
+       if(it >+1000) it = +1000;//- 0.000001*it*it; //+100;
+       if(it <-1000) it = - 1000;//+0.000001*it*it; //-100;
        c[i][j] = it;
 
       if (maxA < it) maxA = it;
@@ -181,7 +191,7 @@ if(key == 's') speed = ! speed;
 if(key == ' ') pause = ! pause;
 if(key == '[') V -= 0.001;
 if(key == ']') V += 0.001;
-if(key == 'o') D -= 0.001;
-if(key == 'p') D += 0.001;
+if(key == 'o') if(D>0)D -= 0.01; else D = 0.6;
+if(key == 'p') if(D<0.4)D += 0.01; else D = 0.002;
 if(keyCode == BACKSPACE) {for(float[] f: c) Arrays.fill(f,0);}
 }
