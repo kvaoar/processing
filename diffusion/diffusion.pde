@@ -1,11 +1,11 @@
 import java.util.Arrays;
-float dt = 0.05, D = 0.9, V = 0.01, dl = 0.1, temp0 = 25, power0 = 1;
+float dt = 0.05, D = 0.99, V = 0.01, dl = 0.1, temp0 = 25, power0 = 1, Rair = 0.001;
 int tick = 0;
 float[][] q, c;
 int dx = 0, dy = 0;
 float minA = -1, maxA = +1;
 int max_x = 1024, max_y = 768;
-int power = 10;
+float power = 10;
 int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
 
 boolean sources = false, speed = false, pause = false;
@@ -63,12 +63,21 @@ void draw() {
   img.updatePixels();
   image(img, 0, 0);
   colorMode(RGB);
+  line(max_x/2, max_y/2 - 0.1*max_y,  max_x/2 , max_y/2 + 0.1*max_y);
+  line(max_x/2 - 0.1*max_x, max_y/2 ,  max_x/2 + 0.1*max_x, max_y/2);
 
 for ( int i = 0; i < round(max_x/2); i++){
             float t_1 = c[i*2][round(max_y/2)];
             float t_2 = c[i*2+1][round(max_y/2)];
             line(2*i, map(t_1, minA, maxA, 0.8*max_y, 0.1*max_y),2*i+1, map(t_2, minA, maxA, 0.8*max_y, 0.1*max_y));
            }
+           
+for( int i = 0; i < 11; i++){
+float t = (minA + (i*(maxA - minA)/10));
+float y = map(t, minA, maxA, 0.8*max_y, 0.1*max_y);
+line(0, y, 10,y);
+ text( round(t), 10,y+4);
+}           
 
   /*  colorMode(RGB);
    rect(10,height-40,180,10);
@@ -102,13 +111,16 @@ for ( int i = 0; i < round(max_x/2); i++){
   t1 = millis() - t1 - t2;
   fill(0);
   textFont(font);
-  text( "[([) v="+nf(V, 1, 3)+" (])] [(o) d="+nf(D, 1, 3)+" (p)]" + " [(k) temp0 = " + nf(temp0,3,1) + " (l)]" , 10, 20);
+  text( "[([) v="+nf(V, 1, 3)+" (])]" , 30, 20);
+  text( "[(o) d="+nf(D, 1, 3)+" (p)]" , 30, 40);
+  text( "[(k) temp0 = " + nf(temp0,1,1) + " (l)]" , 30, 60);
+  text( "[(n) Rair = " + nf(Rair,1,6) + " (m)]" , 30, 80);
   text("Sources  (q):"+onoff(sources), 480, 20);
   text("Flow     (s):"+onoff(speed), 480, 40);
   text("Pause(space):"+onoff(pause), 480, 60);
 
   text("timer: "+tick, 10, height-10);
-  text("power: "+power, 150, height-10);
+  text("power: "+nf(power, 1, 3), 150, height-10);
   text("max: "+round(maxA), 300, height-10);
   text("min: "+round(minA), 450, height-10);
 
@@ -153,7 +165,7 @@ void d_recalc(int i, int j) {
   if (speed) v = V;
 
   it += D*(l+r+bot+top-4*it)*dt/dl + v*(it - r)*dt/dl + qs*dt;
-  it -= (it-temp0)*0.001;
+  it -= (it-temp0)*Rair;
 //  if (it >+1000) it = - 0.000*it; //+100;
 //  if (it <-1000) it = +0.0001*it; //-100;
 
@@ -166,7 +178,8 @@ void d_recalc(int i, int j) {
 
 void mouseWheel(MouseEvent event) {
   float e = event.getCount();
-  int ds = (abs(power)<10)?1:10;
+float ds = (abs(power)<=1)?0.1:1;
+
   if (e < 0) {
     if (power < 250) power+= ds ;  
     else power = -250;
@@ -212,6 +225,8 @@ void keyPressed() {
   if (key == 'p') D += 0.001; 
   if (key == 'k') temp0 -= 1; 
   if (key == 'l') temp0 += 1; 
+  if (key == 'n') Rair -= 0.00001; 
+  if (key == 'm') Rair += 0.00001; 
   if (keyCode == BACKSPACE) {
     for (float[] f : c) Arrays.fill(f, 0);
   }
