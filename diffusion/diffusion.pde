@@ -123,7 +123,7 @@ line(0, y, 10,y);
   text("power: "+nf(power, 1, 3), 150, height-10);
   text("max: "+round(maxA), 300, height-10);
   text("min: "+round(minA), 450, height-10);
-
+  text("delta : "+(round(maxA)-round(minA)), 550, height-10);
   text("paint:"+t1+"ms calc:"+t2+ "ms ", 10, height-30);
 }
 
