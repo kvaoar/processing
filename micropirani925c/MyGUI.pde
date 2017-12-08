@@ -15,15 +15,16 @@ class GUIobj implements Plottable, Clicable {
     h = oh;
     l_col = line_col;
   }
-  
+
   void plot() {
     rect(x, y, w, h, #000000);
   };
-  
+
   void check_click(int x, int y) {
   };
 }
 
+//
 
 // for list plotting
 interface Plottable {
@@ -85,18 +86,29 @@ class Button extends GUIobj {
   void check_click(int cx, int cy) {
     if ((cx>x)&&(cx<x+w)&&(cy>y)&&(cy<y+h)) {
       is_active = true;
-      println(text);
+      //println(text);
     }
   }
 }
 
-class StringTree {
+class MenuTree {
   String Name;
-  ArrayList<StringTree> Parents;
-  StringTree(String name, StringTree... trees ) {
+  ArrayList<MenuTree> Parents;
+  ClickCallback clk;
+
+
+  MenuTree(String name, MenuTree... trees ) {
     Name = name;
-    Parents = new ArrayList<StringTree>();
-    for (StringTree t : trees) Parents.add(t);
+    clk = null;
+    Parents = new ArrayList<MenuTree>();
+    for (MenuTree t : trees) Parents.add(t);
+  }
+
+  MenuTree(String name, ClickCallback c, MenuTree... trees ) {
+    Name = name;
+    clk = c;
+    Parents = new ArrayList<MenuTree>();
+    for (MenuTree t : trees) Parents.add(t);
   }
 }
 
@@ -111,10 +123,10 @@ class Menu extends GUIobj {
 
   ArrayList<Button> b;
   //ArrayList<String> s;
-  ArrayList<StringTree> name_map;
+  ArrayList<MenuTree> name_map;
   Menu sub_m;
 
-  Menu(StringTree mpoints, int mx, int my, int mw, int mh, color bcol, boolean vert) {
+  Menu(MenuTree mpoints, int mx, int my, int mw, int mh, color bcol, boolean vert) {
 
     super(mx, my, mw, mh, bcol);
     b = new ArrayList<Button>();
@@ -144,9 +156,9 @@ class Menu extends GUIobj {
   }
 
 
-  boolean SearchSubmenu(Button p_btn) {
+  boolean TryPlotSubmenu(Button p_btn) {
 
-    StringTree t = name_map.get(b.indexOf(p_btn));
+    MenuTree t = name_map.get(b.indexOf(p_btn));
     println(t.Parents.size());
     if (t.Parents.size()>0)
     {
@@ -184,53 +196,78 @@ class Menu extends GUIobj {
     if (sub_m != null)sub_m.plot();
   }
 
-  void reset_menu() {
-    sub_m = null; 
-    btn_selected = -1;
+
+void reset_buttons(){
     for (Button btn : b) {
       btn.is_light = false;  
       btn.is_active = false;
     }
+}
+  void reset_menu() {
+    sub_m = null; 
+    btn_selected = -1;
+ 
   }
 
-  int get_clicked() {
+
+  Button get_clicked_btn() {
     for (Button btn : b) 
       if (btn.is_active) {
         btn.is_active = false;
-        return b.indexOf(btn);
+        return btn;
       }
-    return -1;
+    return null;
+  }
+
+  void ExeCallback() {
+    if(btn_selected >= 0){
+    MenuTree t = name_map.get(btn_selected);
+    if (t.clk != null) t.clk.OnClick(sub_m.btn_selected);
+    }
   }
 
   void check_click(int x, int y) {
 
     for (Clicable c : b) 
       c.check_click(x, y);
-
-    if (sub_m != null) {
+      
+    if (sub_m != null) 
+    {
       sub_m.check_click(x, y);
-      if (sub_m.final_btn_selected) {
-        final_btn_selected = true;
-
-        reset_menu();
+      if(sub_m.final_btn_selected)
+      {
+      ExeCallback();
+      final_btn_selected = true;
+      reset_menu();
+      reset_buttons();
       }
     }
-
-    for (Button btn : b) 
-      if (btn.is_active) {
-        int clk = get_clicked();
-        if (clk>=0) // pressed button
-          if (!btn.is_light) { // off before
-            if (SearchSubmenu(btn)) // contain menu
-            {
-              btn.is_light = true;
-              btn_selected = clk;
-              final_btn_selected = false;
-            } else
-              final_btn_selected = true;
-          } else { // on before
-            reset_menu();
-          }
+    
+    Button pb = get_clicked_btn();
+    
+    if (pb != null) {
+      btn_selected = b.indexOf(pb);
+      if (pb.is_light) {//on before
+        println("b_light");
+        pb.is_light = false;
+      
+      } else { // off before
+      
+      pb.is_light = true;
+        println("b_not_light");
+        if (TryPlotSubmenu(pb)) {//btn with menu
+        final_btn_selected = false;
+        
+          println("b_with_mnu");
+        } else {// btn terminal
+          println("b_terminal");
+          final_btn_selected = true;
+          ExeCallback();
+           final_btn_selected = true;
+        }
       }
+      println(pb.text );
+    }
+
   }
 }

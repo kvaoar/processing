@@ -6,6 +6,10 @@ import java.util.Collections;
 UDP udp; 
 
 DataStorage pressure;
+DataStorage values;
+DataStorage dpressure;
+DifferentialFilter pfilter;
+DifferentialFilter dfilter;
 
 ArrayList<GUIobj> GUIList;
 
@@ -25,7 +29,7 @@ int pressure_w = sw-10;
 
 
 int dpressure_x = 5;
-int dpressure_y = 40;
+int dpressure_y = 45;
 int dpressure_h = sh/2 -5-40;
 int dpressure_w = sw - 10;
 
@@ -45,28 +49,37 @@ int ESP_port = 8888; // the destination port
 
 void setup() {
 
-  size(1900, 900, P2D);
+  size(1900, 900, P3D);
   println(displayWidth);
   println(displayHeight);
 
   GUIList = new ArrayList<GUIobj> ();
-  pressure = new DataStorage();
+  values = new DataStorage("torr");
+  pressure = new DataStorage("torr");
+  dpressure = new DataStorage("tor/s");
+  pfilter = new DifferentialFilter(values,dpressure,true,true,true);
+  dfilter = new DifferentialFilter(values,pressure,false,false,true);
 
-  GUIList.add(new Graph(pressure_x, pressure_y, pressure_w, pressure_h, decades, start_decade, false, pressure));
-  GUIList.add(new Graph(dpressure_x, dpressure_y, dpressure_w, dpressure_h, decades, start_decade, true, pressure));
+  GUIList.add(new Graph(pressure_x, pressure_y, pressure_w, pressure_h,#7F7F00, decades, start_decade, true, pressure));
+  GUIList.add(new Graph(dpressure_x, dpressure_y, dpressure_w, dpressure_h,#7F7F00, decades, start_decade, false, dpressure));
   //GUIList.add(new Button("Gas Type", 5, 5, 24, 20, #FFFF00, #00FF00, #0000FF));
 
-  StringTree m1 = new StringTree("menu", 
-    new StringTree("menuA", 
-    new StringTree("menuA1",
-       new StringTree("menuA1-1"), 
-      new StringTree("menuA1-2"), 
-      new StringTree("menuA1-3")
-    ), 
-    new StringTree("menuA2"), 
-    new StringTree("menuA3")), 
-    new StringTree("menuB"), 
-    new StringTree("menuC"));
+  MenuTree m1 = new MenuTree("menu", 
+    new MenuTree("Settings", 
+      new MenuTree("Gas Type",new DiscreteCommand("Change gas type", "GT", "NITROGEN", "ARGON", "HELIUM", "HYDROGEN", "H2O", "NEON", "CO2", "XENON" ),
+          new MenuTree("Nitrogen"), 
+          new MenuTree("Argon"), 
+          new MenuTree("Helium"),
+          new MenuTree("Hydrogen"),
+          new MenuTree("H2O"),
+          new MenuTree("Neon"),
+          new MenuTree("CO2"),
+          new MenuTree("Xenon")
+      ), 
+      new MenuTree("menuA2"), 
+      new MenuTree("menuA3")), 
+    new MenuTree("menuB"), 
+    new MenuTree("menuC"));
 
 
   GUIList.add(new Menu(m1, 5, 5, 100, 30, #FFFF00, false));
@@ -101,8 +114,8 @@ void draw()
 {
 
   background(0);
-  //smooth();
-
+  smooth();
+text("FPS: " + frameRate, 1800, 20);
 
   for (Plottable p : GUIList) p.plot();
 
@@ -118,14 +131,16 @@ void draw()
 void receive(byte[] data, String ip, int port)
 {
   receivedFromUDP = new String(data);
- 
+ println(receivedFromUDP);
   no_answ = false;
   ESP_ip = ip;
   data = subset(data, 0, data.length);
   String s = new String( data );
   String[] res = match(s, "ACK(.*?);FF");
   if ( res != null) {
-    pressure.add( Float.parseFloat(res[1]));
+    values.add( Float.parseFloat(res[1]));
+    pfilter.upd();
+    dfilter.upd();
   }
 }
 

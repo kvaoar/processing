@@ -1,7 +1,14 @@
 
 class DataStorage {
   FloatList data;
-  DataStorage() {
+  String unit;
+  String pps = "m";
+  String ppm = "u";
+  float now;
+  
+  
+  DataStorage(String s_unit) {
+    unit = s_unit;
     data = new FloatList();
   }
   void add(float value) {
