@@ -82,7 +82,7 @@ void setup() {
     new MenuTree("menuC"));
 
 
-  GUIList.add(new Menu(m1, 100, 5, 100, 30, #FFFF00, false));
+  GUIList.add(new Menu(m1, 100, 5, 100, 40, #FFFF00, false));
   /*
   Enumeration<NetworkInterface> nif ;
    try{

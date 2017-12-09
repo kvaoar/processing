@@ -48,22 +48,22 @@ class Button extends GUIobj {
 
   int round = 1;
   int alpha = 100;
-  int text_size = 14;
+  int text_size = 15;
 
   GUIobj parent;
 
   String text;
 
-  Button(String txt, int b_x, int b_y, int b_w, int b_h, color border, color on_fill, color off_fill) {
+  Button(String txt, int b_x, int b_y, int b_w, int b_h, color border, color on_fill, color off_fill, int txt_siz) {
     super(b_x, b_y, b_w, b_h, border);
 
     on = on_fill;
     off = off_fill;
-
+    text_size = txt_siz;
     text = txt;
     textSize(text_size );
-    w = max(ceil(textWidth(text))+gap*2, b_w);
-    h = max(h, (text_size+gap*2));
+    w = max(ceil(textWidth(text))+2*gap, b_w);
+    h = max(h, (text_size+2*gap));
     is_active = false;
   }
 
@@ -81,8 +81,8 @@ class Button extends GUIobj {
 
     fill(l_col);
     textSize(text_size );
-
-    text(text, x+gap, y+text_size);
+    textAlign(CENTER);
+    text(text,x+(w/2), y+((h+(text_size/2))/2));
   }
 
   void check_click(int cx, int cy) {
@@ -120,7 +120,7 @@ class Menu extends GUIobj {
   boolean final_btn_selected = true;
   boolean is_vertical = true;
   boolean is_transit = false;
-  int text_size = 18;
+  int font_size = 14;
   int btn_count = 0;
 
   ArrayList<Button> b;
@@ -140,20 +140,27 @@ class Menu extends GUIobj {
     //for (int i = 0; i < btn_count; i++) s.add(mpoints.Parents.get(i).Name);
 
     is_vertical = vert;
-    textSize(text_size );
-    int mlen = maxlen();
+    
+    int btn_maxh = 0;
+    int btn_maxw = 0;
+      for (int i = 0; i < btn_count; i++) {
+        Button tmp_b = new Button(name_map.get(i).Name, 0, 0, 0, 0, #FFFF00, #00FF00, #0000FF,font_size);
+        if(tmp_b.w>btn_maxw)btn_maxw = tmp_b.w;
+        if(tmp_b.h>btn_maxh)btn_maxh = tmp_b.h;
+      }
+    
+    
     if (is_vertical) {
-      int h_step = gap+text_size;
-      w = max(w, (mlen +4*gap));
-      h = btn_count *h_step + 2*gap;
-
-      for (int i = 0; i < btn_count; i++) b.add(new Button(name_map.get(i).Name, x+gap, y+h_step*i+gap, w-2*gap, text_size+gap, #FFFF00, #00FF00, #0000FF));
+    h = gap + (btn_maxh + gap)*btn_count;
+    w = gap +  (btn_maxw + gap)*1;
+    for (int i = 0; i < btn_count; i++) b.add(new Button(name_map.get(i).Name, x + gap, y + gap + (gap+btn_maxh)*i, btn_maxw, btn_maxh, #FFFF00, #00FF00, #0000FF,font_size));
+        
+      
     } else {
-      int w_step = mlen + gap;
-      w = btn_count*w_step + gap;
-      h = 3*gap + text_size;
-
-      for (int i = 0; i < btn_count; i++) b.add(new Button(name_map.get(i).Name, x+gap+w_step*i, y+gap, w_step-gap, text_size, #FFFF00, #00FF00, #0000FF));
+    h = gap + (btn_maxh + gap)*1;
+    w = gap +  (btn_maxw + gap)*btn_count;
+    for (int i = 0; i < btn_count; i++) b.add(new Button(name_map.get(i).Name, x + gap + (btn_maxw + gap)*i , y + gap, btn_maxw, btn_maxh, #FFFF00, #00FF00, #0000FF,font_size));
+      //for (int i = 0; i < btn_count; i++) b.add(new Button(name_map.get(i).Name, x+gap+w_step*i, y+gap, w_step-gap, text_size, #FFFF00, #00FF00, #0000FF,text_size));
     }
   }
 
@@ -165,9 +172,9 @@ class Menu extends GUIobj {
     if (t.Parents.size()>0)
     {
       if (is_vertical)
-        sub_m = new Menu(t, p_btn.x+p_btn.w, p_btn.y, 100, 100, l_col, !is_vertical);
+        sub_m = new Menu(t, p_btn.x+p_btn.w+2*gap, p_btn.y, 100, 100, l_col, !is_vertical);
       else
-        sub_m = new Menu(t, p_btn.x, p_btn.y+p_btn.h, 100, 100, l_col, !is_vertical);
+        sub_m = new Menu(t, p_btn.x, p_btn.y+p_btn.h+2*gap, 100, 100, l_col, !is_vertical);
       return true;
     } else {
       sub_m = null;
