@@ -41,6 +41,8 @@ class Button extends GUIobj {
   boolean is_active = false; //pressed or press and fix
   boolean is_light = false;
 
+  int font_size;
+
   color on;
   color off;
 

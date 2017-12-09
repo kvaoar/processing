@@ -78,8 +78,7 @@ class Graph extends GUIobj {
       else text(label(d.now), x+left_label, y+gap+text_size);
     }
 
-    if (d.size() > w-left_label) d.clear();
-
+  
 int capacity = w-left_label;
 if(d.size()> capacity) start_index = (d.size()-1-capacity);
 

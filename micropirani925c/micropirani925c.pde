@@ -62,7 +62,7 @@ void setup() {
 
   GUIList.add(new Graph(pressure_x, pressure_y, pressure_w, pressure_h,#7F7F00, decades, start_decade, true, pressure));
   GUIList.add(new Graph(dpressure_x, dpressure_y, dpressure_w, dpressure_h,#7F7F00, decades, start_decade, false, dpressure));
-  //GUIList.add(new Button("Gas Type", 5, 5, 24, 20, #FFFF00, #00FF00, #0000FF));
+  //GUIList.add(new Button("Start", , 10, 90, 10+24, #FFFF00, #00FF00, #0000FF));
 
   MenuTree m1 = new MenuTree("menu", 
     new MenuTree("Settings", 
@@ -82,7 +82,7 @@ void setup() {
     new MenuTree("menuC"));
 
 
-  GUIList.add(new Menu(m1, 5, 5, 100, 30, #FFFF00, false));
+  GUIList.add(new Menu(m1, 100, 5, 100, 30, #FFFF00, false));
   /*
   Enumeration<NetworkInterface> nif ;
    try{
