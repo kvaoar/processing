@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Collections;
 UDP udp; 
 
-DataStorage pressure;
 DataStorage values;
-DataStorage dpressure;
+
 DifferentialFilter pfilter;
 DifferentialFilter dfilter;
 
 ArrayList<GUIobj> GUIList;
+Ticker reg_ask;
 
 float  touchX, touchY;
 int  sw = 1900;
@@ -36,7 +36,7 @@ int dpressure_w = sw - 10;
 
 FloatList s;
 int time = 0;
-int wait = 1000;
+float interval = 1;
 int pow = 1;
 boolean no_answ = true;
 
@@ -54,15 +54,17 @@ void setup() {
   println(displayHeight);
 
   GUIList = new ArrayList<GUIobj> ();
-  values = new DataStorage("torr");
-  pressure = new DataStorage("torr");
-  dpressure = new DataStorage("tor/s");
-  pfilter = new DifferentialFilter(values,dpressure,true,true,true);
-  dfilter = new DifferentialFilter(values,pressure,false,false,true);
+  values = new DataStorage("Torr",interval);
 
-  GUIList.add(new Graph(pressure_x, pressure_y, pressure_w, pressure_h,#7F7F00, decades, start_decade, true, pressure));
-  GUIList.add(new Graph(dpressure_x, dpressure_y, dpressure_w, dpressure_h,#7F7F00, decades, start_decade, false, dpressure));
-  //GUIList.add(new Button("Start", , 10, 90, 10+24, #FFFF00, #00FF00, #0000FF));
+  
+  dfilter = new DifferentialFilter(values,true,true,true);
+  pfilter = new DifferentialFilter(values,false,false,true);
+  
+  reg_ask = new Ticker(interval);
+
+  GUIList.add(new Graph(pressure_x, pressure_y, pressure_w, pressure_h,#7F7F00, decades, start_decade, true, "Torr",interval, pfilter));
+  GUIList.add(new Graph(dpressure_x, dpressure_y, dpressure_w, dpressure_h,#7F7F00, decades, start_decade, false, "Torr/s",interval, dfilter));
+  GUIList.add(new Button("Start",5 , 10, 90, 16+10, #FFFF00, #00FF00, #0000FF,16, reg_ask));
 
   MenuTree m1 = new MenuTree("menu", 
     new MenuTree("Settings", 
@@ -76,7 +78,11 @@ void setup() {
           new MenuTree("CO2"),
           new MenuTree("Xenon")
       ), 
-      new MenuTree("menuA2"), 
+      new MenuTree("Units",new DiscreteCommand("Change units", "U", "TORR", "MBAR", "PASCAL" ),
+          new MenuTree("Torr"), 
+          new MenuTree("mBar"), 
+          new MenuTree("Pascal")
+      ), 
       new MenuTree("menuA3")), 
     new MenuTree("menuB"), 
     new MenuTree("menuC"));
@@ -103,8 +109,7 @@ void setup() {
   // println(udp.address());
   // println(receivedFromUDP);
 
-  udp.send(message, ESP_ip, ESP_port);
-  time = millis();//store the current time
+  
 }
 
 
@@ -118,13 +123,8 @@ void draw()
 text("FPS: " + frameRate, 1800, 20);
 
   for (Plottable p : GUIList) p.plot();
-
-  if (millis() - time >= wait)
-  {
-    udp.send( message, ESP_ip, ESP_port );
-    no_answ = true;
-    time = millis();
-  }
+  reg_ask.upd();
+ 
 }
 
 
@@ -148,4 +148,21 @@ void mouseClicked() {
   touchX = mouseX;
   touchY = mouseY;
   for (Clicable c : GUIList) c.check_click(mouseX, mouseY);
+}
+
+
+void mousePressed() {
+ for (Clicable c : GUIList) c.check_mousePressed();
+
+
+}
+
+void mouseDragged() {
+for (Clicable c : GUIList) c.check_mouseDragged();
+
+}
+
+void mouseReleased() {
+  for (Clicable c : GUIList) c.check_mouseReleased();
+
 }

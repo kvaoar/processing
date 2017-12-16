@@ -9,14 +9,22 @@ class DifferentialFilter {
   float last_val = 0;
   boolean first_init = true;
   
+  float sym_f_a;
+  float sym_f_b;
+  
+  
   
 
-  DifferentialFilter(DataStorage val, DataStorage res, boolean diff, boolean exp_filter, boolean log) {
+  DifferentialFilter(DataStorage val, boolean diff, boolean exp_filter, boolean log) {
     diff_on = diff;
     filter_exp_on = exp_filter;
     log_on = log;
     v = val;
-    r = res;
+   // r = res;
+  }
+  
+  void set_reciever(DataStorage reciever){
+  r = reciever;
   }
 
 
@@ -55,20 +63,33 @@ class DifferentialFilter {
     }
     return 0;
   }
+  
+  float symmetric_filter(float c){
+    if(first_init) return 0;
+    float res = 0.2*sym_f_a+0.6*sym_f_b+0.2*c;
+    sym_f_a = sym_f_b;
+    sym_f_b =c;
+    return res;
+   }
 
   float delta_i( int pos) {
     return delta(v.get(pos), v.get(pos-1));
   }
 
   void upd() {
+    
+    if(r != null){
     if (first_init) {
-      if (v.size()>1) {
+      if (v.size()>3) {
         last_val = delta_i(1);
+        
+        sym_f_a = delta_i(1);
+        sym_f_b = delta_i(2);
         first_init = false;
       }
     } else {
       int frame = v.size();
-      for (int i = r.size()+1; i < frame; i++) {
+      for (int i = r.size()+3; i < frame; i++) {
         float res = 0;
         
         
@@ -83,11 +104,13 @@ class DifferentialFilter {
           res = LogScale(res);
           
         if(filter_exp_on)
-          res = exp_filtr(res); 
+        res = symmetric_filter(res);
+          //res = exp_filtr(res); 
         
       r.add( res);
     }
       
     }
   }
+}
 }

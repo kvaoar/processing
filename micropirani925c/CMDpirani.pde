@@ -1,5 +1,6 @@
 interface ClickCallback {
   void OnClick(int parent);
+   void OnClick(Button parent);
 }
 
 
@@ -29,7 +30,11 @@ class DiscreteCommand extends Command implements ClickCallback{
     if ((parent>0)&&(parent < values.size())) {
       
     } 
+    
+
   }
+  
+       void OnClick(Button parent){}
 }
 
 class CMDpirani {

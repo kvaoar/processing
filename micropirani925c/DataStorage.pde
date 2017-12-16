@@ -5,9 +5,9 @@ class DataStorage {
   String pps = "m";
   String ppm = "u";
   float now;
+  float timestep;
   
-  
-  DataStorage(String s_unit) {
+  DataStorage(String s_unit, float timestep) {
     unit = s_unit;
     data = new FloatList();
   }
@@ -25,6 +25,11 @@ class DataStorage {
 
   void clear() {
     data.clear();
+  }
+  
+  FloatList getSubset(int from){
+    
+  return data.getSubset(from);
   }
   
  float get_last() {
